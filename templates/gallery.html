@@ -1,0 +1,72 @@
+<!--
+  gallery.html – Restaurant Gallery Page
+  Displays all restaurants in a card-based gallery layout.
+-->
+{% extends "layout.html" %}
+{% block title %}Restaurants – DelishNex{% endblock %}
+
+{% block content %}
+<div class="step-page">
+    <div class="container">
+        <div class="step-header animate-fadeInUp">
+            <h2><i class="fas fa-store me-2 text-primary-delish"></i>Choose a Restaurant</h2>
+            <p>Select a restaurant to start your dining experience</p>
+        </div>
+
+        <div class="row g-4">
+            {% for restaurant in restaurants %}
+            <div class="col-lg-4 col-md-6 animate-fadeInUp delay-{{ loop.index % 5 + 1 }}">
+                <div class="card card-delish restaurant-card h-100">
+                    <div class="card-img-wrapper">
+                        {% if restaurant.image_url %}
+                        <img src="{{ url_for('static', filename='images/' ~ restaurant.image_url) }}" class="card-img-top" alt="{{ restaurant.name }}" style="height:200px; object-fit: cover;">
+                        {% else %}
+                        <div style="height:200px; background:var(--primary-ghost); display:flex; align-items:center; justify-content:center;">
+                            <i class="fas fa-store-alt" style="font-size:3.5rem; color:var(--primary-muted);"></i>
+                        </div>
+                        {% endif %}
+                        <span class="cuisine-badge">{{ restaurant.cuisine_type }}</span>
+                    </div>
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title">{{ restaurant.name }}</h5>
+                        <p class="card-text flex-grow-1">{{ restaurant.description[:100] }}...</p>
+                        <div class="mb-2">
+                            <small class="text-muted">
+                                <i class="fas fa-map-marker-alt me-1"></i>{{ restaurant.address }}
+                            </small>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div class="rating">
+                                {% for i in range(restaurant.rating|int) %}
+                                <i class="fas fa-star"></i>
+                                {% endfor %}
+                                <span class="text-muted">{{ restaurant.rating }}</span>
+                            </div>
+                            <small class="text-muted">
+                                <i class="fas fa-clock me-1"></i>{{ restaurant.opening_time.strftime('%I:%M %p') }} – {{ restaurant.closing_time.strftime('%I:%M %p') }}
+                            </small>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <a href="{{ url_for('main.occasion', restaurant_id=restaurant.id) }}" class="btn btn-primary-delish btn-sm-delish flex-fill">
+                                <i class="fas fa-calendar-check me-1"></i>Reserve
+                            </a>
+                            <a href="{{ url_for('main.menu', restaurant_id=restaurant.id) }}" class="btn btn-outline-delish btn-sm-delish flex-fill">
+                                <i class="fas fa-utensils me-1"></i>Menu
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        {% if not restaurants %}
+        <div class="empty-state">
+            <i class="fas fa-store-slash"></i>
+            <h5>No restaurants available</h5>
+            <p>Check back later for new listings.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

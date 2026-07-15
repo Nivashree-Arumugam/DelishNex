@@ -1,0 +1,75 @@
+<!--
+  reward.html – Rewards Page
+  Displays total reward points and transaction history.
+-->
+{% extends "layout.html" %}
+{% block title %}Rewards – DelishNex{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Reward Hero -->
+    <div class="reward-hero animate-fadeInUp">
+        <i class="fas fa-trophy mb-2" style="font-size:2.5rem;"></i>
+        <div class="points-display">{{ total_points }}</div>
+        <div class="points-label">Reward Points</div>
+        <p class="mt-2" style="opacity:0.8; font-size:0.9rem;">Earn points with every order and reservation!</p>
+    </div>
+
+    <!-- How to Earn -->
+    <div class="row g-3 mb-4 animate-fadeInUp delay-1">
+        <div class="col-md-4">
+            <div class="card card-delish p-3 text-center h-100">
+                <i class="fas fa-user-plus text-primary-delish mb-2" style="font-size:2rem;"></i>
+                <h6 class="fw-bold">Sign Up</h6>
+                <p class="text-muted mb-0" style="font-size:0.85rem;">Earn <strong>100 points</strong> when you join</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card card-delish p-3 text-center h-100">
+                <i class="fas fa-calendar-check text-primary-delish mb-2" style="font-size:2rem;"></i>
+                <h6 class="fw-bold">Reservation</h6>
+                <p class="text-muted mb-0" style="font-size:0.85rem;">Earn <strong>50 points</strong> per booking</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card card-delish p-3 text-center h-100">
+                <i class="fas fa-shopping-bag text-primary-delish mb-2" style="font-size:2rem;"></i>
+                <h6 class="fw-bold">Food Order</h6>
+                <p class="text-muted mb-0" style="font-size:0.85rem;">Earn <strong>1 point per ₹10</strong> spent</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transaction History -->
+    <div class="section-header animate-fadeInUp delay-2">
+        <h2><i class="fas fa-history me-2 text-primary-delish"></i>Points History</h2>
+    </div>
+
+    {% if rewards %}
+    {% for reward in rewards %}
+    <div class="reward-item animate-fadeInUp">
+        <div class="reward-icon {{ reward.reward_type }}">
+            {% if reward.reward_type == 'earned' %}
+            <i class="fas fa-plus"></i>
+            {% else %}
+            <i class="fas fa-minus"></i>
+            {% endif %}
+        </div>
+        <div class="reward-details">
+            <h6>{{ reward.description }}</h6>
+            <small>{{ reward.created_at.strftime('%d %b %Y, %I:%M %p') }}</small>
+        </div>
+        <div class="reward-points {{ reward.reward_type }}">
+            {{ '+' if reward.reward_type == 'earned' else '-' }}{{ reward.points }}
+        </div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="empty-state">
+        <i class="fas fa-coins"></i>
+        <h5>No reward activity yet</h5>
+        <p>Start earning by making reservations and orders!</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

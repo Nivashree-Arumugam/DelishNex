@@ -1,0 +1,63 @@
+<!--
+  members.html – Reservation Step 5: Select Number of Members
+-->
+{% extends "layout.html" %}
+{% block title %}Select Members – {{ restaurant.name }} – DelishNex{% endblock %}
+
+{% block content %}
+<div class="step-page">
+    <div class="container" style="max-width:700px;">
+        <div class="step-progress">
+            <div class="step-dot completed"></div>
+            <div class="step-dot completed"></div>
+            <div class="step-dot completed"></div>
+            <div class="step-dot completed"></div>
+            <div class="step-dot active"></div>
+            <div class="step-dot"></div>
+        </div>
+
+        <div class="step-header animate-fadeInUp">
+            <p class="text-muted mb-1">{{ restaurant.name }}</p>
+            <h2>How Many Guests?</h2>
+            <p>Select the number of people dining</p>
+        </div>
+
+        <form method="POST" action="{{ url_for('main.recommendation', restaurant_id=restaurant.id) }}" class="step-form">
+            <input type="hidden" name="members" id="member-value" value="2" required>
+
+            <div class="text-center animate-fadeInUp delay-1">
+                <!-- Member Counter -->
+                <div class="member-counter">
+                    <button type="button" class="btn-counter" id="btn-decrease">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                    <div class="count" id="member-count">2</div>
+                    <button type="button" class="btn-counter" id="btn-increase">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+                <p class="text-muted"><i class="fas fa-users me-1"></i>Guests</p>
+            </div>
+
+            <!-- Quick Select Buttons -->
+            <div class="d-flex justify-content-center gap-2 flex-wrap mb-4 animate-fadeInUp delay-2">
+                {% for n in [1, 2, 4, 6, 8, 10] %}
+                <button type="button" class="btn btn-outline-delish btn-sm-delish quick-member-btn"
+                        onclick="document.getElementById('member-count').textContent='{{ n }}'; document.getElementById('member-value').value='{{ n }}';">
+                    {{ n }} {% if n == 1 %}Guest{% else %}Guests{% endif %}
+                </button>
+                {% endfor %}
+            </div>
+
+            <div class="d-flex justify-content-between">
+                <a href="{{ url_for('main.select_time', restaurant_id=restaurant.id) }}" class="btn btn-outline-delish">
+                    <i class="fas fa-arrow-left me-2"></i>Back
+                </a>
+                <button type="submit" class="btn btn-primary-delish btn-lg">
+                    Get Recommendations <i class="fas fa-magic ms-2"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

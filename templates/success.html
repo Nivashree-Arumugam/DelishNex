@@ -1,0 +1,111 @@
+<!--
+  success.html – Order Success / Confirmation Page
+  Displayed after an order is placed successfully.
+-->
+{% extends "layout.html" %}
+{% block title %}Order Confirmed – DelishNex{% endblock %}
+
+{% block content %}
+<div class="success-page">
+    <div class="container">
+        <div class="success-card animate-fadeInUp">
+            <!-- Success Icon -->
+            <div class="success-icon">
+                <i class="fas fa-check"></i>
+            </div>
+
+            <h2>Order Confirmed!</h2>
+            <p class="text-muted mb-4">Your order has been placed successfully. Thank you for dining with DelishNex!</p>
+
+            <!-- Order Details -->
+            <div class="text-start bg-primary-ghost p-3 rounded-delish mb-3">
+                <div class="row">
+                    <div class="col-6 mb-2">
+                        <small class="text-muted">Order ID</small><br>
+                        <strong>#{{ order.id }}</strong>
+                    </div>
+                    <div class="col-6 mb-2">
+                        <small class="text-muted">Status</small><br>
+                        <span class="status-badge {{ order.status }}">{{ order.status|capitalize }}</span>
+                    </div>
+                    {% if restaurant %}
+                    <div class="col-6 mb-2">
+                        <small class="text-muted">Restaurant</small><br>
+                        <strong>{{ restaurant.name }}</strong>
+                    </div>
+                    {% endif %}
+                    <div class="col-6 mb-2">
+                        <small class="text-muted">Total Amount</small><br>
+                        <strong class="text-primary-delish">₹{{ order.grand_total }}</strong>
+                    </div>
+                    {% if payment %}
+                    <div class="col-6 mb-2">
+                        <small class="text-muted">Payment Method</small><br>
+                        <strong>{{ payment.payment_method|upper }}</strong>
+                    </div>
+                    <div class="col-6 mb-2">
+                        <small class="text-muted">Transaction ID</small><br>
+                        <strong>{{ payment.transaction_id }}</strong>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Reservation Info -->
+            {% if reservation %}
+            <div class="text-start bg-primary-ghost p-3 rounded-delish mb-3">
+                <h6 class="fw-bold"><i class="fas fa-calendar-check me-1 text-primary-delish"></i>Reservation</h6>
+                <div class="row">
+                    <div class="col-6 mb-1">
+                        <small class="text-muted">Date</small><br>
+                        <strong>{{ reservation.reservation_date }}</strong>
+                    </div>
+                    <div class="col-6 mb-1">
+                        <small class="text-muted">Time</small><br>
+                        <strong>{{ reservation.reservation_time }}</strong>
+                    </div>
+                    <div class="col-6 mb-1">
+                        <small class="text-muted">Guests</small><br>
+                        <strong>{{ reservation.members }}</strong>
+                    </div>
+                    <div class="col-6 mb-1">
+                        <small class="text-muted">Table</small><br>
+                        <strong>#{{ reservation.table_id }}</strong>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Order Items -->
+            <div class="text-start mb-3">
+                <h6 class="fw-bold"><i class="fas fa-utensils me-1 text-accent"></i>Items Ordered</h6>
+                {% for item in items %}
+                <div class="d-flex justify-content-between py-1 border-bottom">
+                    <span>{{ item.menu_item.name }} ×{{ item.quantity }}</span>
+                    <span class="fw-bold">₹{{ item.total_price }}</span>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Reward Points -->
+            <div class="alert alert-success d-flex align-items-center" style="border-radius:var(--radius-md);">
+                <i class="fas fa-trophy me-2" style="font-size:1.5rem;"></i>
+                <div>
+                    <strong>Reward Points Earned!</strong><br>
+                    You earned <strong>{{ (order.grand_total|float / 10)|int }}</strong> points for this order.
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="d-flex justify-content-center gap-2 flex-wrap">
+                <a href="{{ url_for('main.bookings') }}" class="btn btn-primary-delish">
+                    <i class="fas fa-list me-1"></i>My Bookings
+                </a>
+                <a href="{{ url_for('main.home') }}" class="btn btn-outline-delish">
+                    <i class="fas fa-home me-1"></i>Home
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

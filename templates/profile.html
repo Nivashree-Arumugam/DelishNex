@@ -1,0 +1,112 @@
+<!--
+  profile.html – User Profile Page
+  View and update profile, change password, view stats.
+-->
+{% extends "layout.html" %}
+{% block title %}Profile – DelishNex{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Profile Hero -->
+    <div class="profile-hero animate-fadeInUp">
+        <div class="profile-avatar">
+            <i class="fas fa-user"></i>
+        </div>
+        <h3 class="fw-bold mb-1">{{ current_user.full_name }}</h3>
+        <p style="opacity:0.8;">{{ current_user.email }}</p>
+        <span class="badge bg-light text-dark" style="font-size:0.8rem;">
+            <i class="fas fa-trophy me-1 text-warning"></i>{{ current_user.reward_points }} Reward Points
+        </span>
+    </div>
+
+    <!-- Stats -->
+    <div class="row g-3 mb-4 animate-fadeInUp delay-1">
+        <div class="col-4">
+            <div class="profile-stat card card-delish p-3">
+                <div class="stat-value">{{ order_count }}</div>
+                <div class="stat-label">Orders</div>
+            </div>
+        </div>
+        <div class="col-4">
+            <div class="profile-stat card card-delish p-3">
+                <div class="stat-value">{{ reservation_count }}</div>
+                <div class="stat-label">Reservations</div>
+            </div>
+        </div>
+        <div class="col-4">
+            <div class="profile-stat card card-delish p-3">
+                <div class="stat-value">{{ current_user.reward_points }}</div>
+                <div class="stat-label">Points</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Update Profile Form -->
+    <div class="card card-delish p-4 mb-4 animate-fadeInUp delay-2">
+        <h5 class="fw-bold mb-3"><i class="fas fa-edit me-2 text-primary-delish"></i>Update Profile</h5>
+
+        <form method="POST" action="{{ url_for('main.profile') }}">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="full_name" class="form-label fw-bold">Full Name</label>
+                    <input type="text" class="form-control" id="full_name" name="full_name"
+                           value="{{ current_user.full_name }}" style="border-radius:var(--radius-md);">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="email" class="form-label fw-bold">Email</label>
+                    <input type="email" class="form-control" value="{{ current_user.email }}" disabled
+                           style="border-radius:var(--radius-md);">
+                    <small class="text-muted">Email cannot be changed.</small>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="phone" class="form-label fw-bold">Phone</label>
+                    <input type="tel" class="form-control" id="phone" name="phone"
+                           value="{{ current_user.phone }}" style="border-radius:var(--radius-md);">
+                </div>
+            </div>
+
+            <hr>
+
+            <h6 class="fw-bold mb-3"><i class="fas fa-lock me-2 text-primary-delish"></i>Change Password</h6>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="current_password" class="form-label fw-bold">Current Password</label>
+                    <input type="password" class="form-control" id="current_password" name="current_password"
+                           placeholder="Enter current password" style="border-radius:var(--radius-md);">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="new_password" class="form-label fw-bold">New Password</label>
+                    <input type="password" class="form-control" id="new_password" name="new_password"
+                           placeholder="Enter new password (min 6 chars)" style="border-radius:var(--radius-md);">
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary-delish">
+                <i class="fas fa-save me-2"></i>Save Changes
+            </button>
+        </form>
+    </div>
+
+    <!-- Quick Links -->
+    <div class="row g-3 animate-fadeInUp delay-3">
+        <div class="col-md-4">
+            <a href="{{ url_for('main.bookings') }}" class="card card-delish p-3 text-center text-decoration-none d-block h-100">
+                <i class="fas fa-history text-primary-delish mb-2" style="font-size:2rem;"></i>
+                <h6 class="fw-bold mb-0">Order History</h6>
+            </a>
+        </div>
+        <div class="col-md-4">
+            <a href="{{ url_for('main.rewards') }}" class="card card-delish p-3 text-center text-decoration-none d-block h-100">
+                <i class="fas fa-trophy text-warning mb-2" style="font-size:2rem;"></i>
+                <h6 class="fw-bold mb-0">Reward Points</h6>
+            </a>
+        </div>
+        <div class="col-md-4">
+            <a href="{{ url_for('main.logout') }}" class="card card-delish p-3 text-center text-decoration-none d-block h-100">
+                <i class="fas fa-sign-out-alt text-danger mb-2" style="font-size:2rem;"></i>
+                <h6 class="fw-bold mb-0">Logout</h6>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

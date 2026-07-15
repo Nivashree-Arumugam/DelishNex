@@ -1,0 +1,111 @@
+<!--
+  admin/order_management.html – Admin Order Management
+  View and update order statuses.
+-->
+{% extends "layout.html" %}
+{% block title %}Order Management – Admin – DelishNex{% endblock %}
+
+{% block content %}
+<div class="admin-page">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4 animate-fadeInUp">
+            <div>
+                <h2 class="fw-bold font-display"><i class="fas fa-shopping-bag me-2 text-primary-delish"></i>Order Management</h2>
+                <p class="text-muted mb-0">Track and update order statuses</p>
+            </div>
+            <a href="{{ url_for('main.admin_dashboard') }}" class="btn btn-outline-delish btn-sm-delish">
+                <i class="fas fa-arrow-left me-1"></i>Dashboard
+            </a>
+        </div>
+
+        <!-- Status Filter -->
+        <div class="filter-tabs mb-3 animate-fadeInUp delay-1">
+            <a href="{{ url_for('main.admin_orders') }}" class="filter-tab {{ 'active' if current_status == 'all' else '' }}">All</a>
+            <a href="{{ url_for('main.admin_orders', status='pending') }}" class="filter-tab {{ 'active' if current_status == 'pending' else '' }}">Pending</a>
+            <a href="{{ url_for('main.admin_orders', status='preparing') }}" class="filter-tab {{ 'active' if current_status == 'preparing' else '' }}">Preparing</a>
+            <a href="{{ url_for('main.admin_orders', status='ready') }}" class="filter-tab {{ 'active' if current_status == 'ready' else '' }}">Ready</a>
+            <a href="{{ url_for('main.admin_orders', status='delivered') }}" class="filter-tab {{ 'active' if current_status == 'delivered' else '' }}">Delivered</a>
+            <a href="{{ url_for('main.admin_orders', status='cancelled') }}" class="filter-tab {{ 'active' if current_status == 'cancelled' else '' }}">Cancelled</a>
+        </div>
+
+        <!-- Orders Table -->
+        <div class="card card-delish animate-fadeInUp delay-2">
+            <div class="table-responsive">
+                <table class="table table-delish mb-0">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Customer</th>
+                            <th>Restaurant</th>
+                            <th>Items</th>
+                            <th>Total</th>
+                            <th>Payment</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders %}
+                        <tr>
+                            <td>#{{ order.id }}</td>
+                            <td>
+                                <strong>{{ order.user.full_name }}</strong><br>
+                                <small class="text-muted">{{ order.user.phone }}</small>
+                            </td>
+                            <td>{{ order.restaurant.name }}</td>
+                            <td>{{ order.items.count() }}</td>
+                            <td class="fw-bold">₹{{ order.grand_total }}</td>
+                            <td>
+                                {% if order.payment %}
+                                <span class="text-uppercase" style="font-size:0.75rem;">{{ order.payment.payment_method }}</span>
+                                {% else %}
+                                <span class="text-muted">N/A</span>
+                                {% endif %}
+                            </td>
+                            <td><span class="status-badge {{ order.status }}">{{ order.status|capitalize }}</span></td>
+                            <td><small>{{ order.created_at.strftime('%d %b %Y') }}</small></td>
+                            <td>
+                                {% if order.status == 'pending' %}
+                                <form method="POST" action="{{ url_for('main.admin_update_order', order_id=order.id) }}" class="d-inline">
+                                    <input type="hidden" name="status" value="preparing">
+                                    <button type="submit" class="btn btn-sm btn-info text-white" title="Start Preparing">
+                                        <i class="fas fa-fire"></i>
+                                    </button>
+                                </form>
+                                {% elif order.status == 'preparing' %}
+                                <form method="POST" action="{{ url_for('main.admin_update_order', order_id=order.id) }}" class="d-inline">
+                                    <input type="hidden" name="status" value="ready">
+                                    <button type="submit" class="btn btn-sm btn-success" title="Mark Ready">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                </form>
+                                {% elif order.status == 'ready' %}
+                                <form method="POST" action="{{ url_for('main.admin_update_order', order_id=order.id) }}" class="d-inline">
+                                    <input type="hidden" name="status" value="delivered">
+                                    <button type="submit" class="btn btn-sm btn-primary" title="Mark Delivered">
+                                        <i class="fas fa-truck"></i>
+                                    </button>
+                                </form>
+                                {% endif %}
+                                {% if order.status in ['pending', 'preparing'] %}
+                                <form method="POST" action="{{ url_for('main.admin_update_order', order_id=order.id) }}" class="d-inline">
+                                    <input type="hidden" name="status" value="cancelled">
+                                    <button type="submit" class="btn btn-sm btn-danger" title="Cancel Order">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </form>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        {% if not orders %}
+                        <tr><td colspan="9" class="text-center text-muted py-4">No orders found</td></tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

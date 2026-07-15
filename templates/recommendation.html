@@ -1,0 +1,71 @@
+<!--
+  recommendation.html – Reservation Step 6: AI Recommendation
+-->
+{% extends "layout.html" %}
+{% block title %}AI Recommendations – DelishNex{% endblock %}
+
+{% block content %}
+<div class="step-page">
+    <div class="container" style="max-width:800px;">
+        <div class="step-progress">
+            <div class="step-dot completed"></div>
+            <div class="step-dot completed"></div>
+            <div class="step-dot completed"></div>
+            <div class="step-dot completed"></div>
+            <div class="step-dot completed"></div>
+            <div class="step-dot active"></div>
+        </div>
+
+        <div class="step-header animate-fadeInUp">
+            <div class="ai-badge">
+                <i class="fas fa-brain"></i> AI-Powered
+            </div>
+            <h2>Personalized Recommendations</h2>
+            <p>Based on your <strong>{{ occasion }}</strong> with a <strong>{{ mood }}</strong> mood for <strong>{{ members }}</strong> guests</p>
+        </div>
+
+        <div class="row g-3 mb-4">
+            {% for rec in recommendations %}
+            <div class="col-md-6 animate-fadeInUp delay-{{ loop.index % 5 + 1 }}">
+                <div class="recommendation-card">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h5 class="mb-0 fw-bold">{{ rec.restaurant.name }}</h5>
+                        <span class="match-score">
+                            <i class="fas fa-fire me-1"></i>{{ (rec.score / 1.2)|int }}% Match
+                        </span>
+                    </div>
+                    <p class="text-muted mb-2" style="font-size:0.85rem;">
+                        <i class="fas fa-utensils me-1"></i>{{ rec.restaurant.cuisine_type }} •
+                        <i class="fas fa-star text-warning me-1"></i>{{ rec.restaurant.rating }} •
+                        <i class="fas fa-chair me-1"></i>{{ rec.suitable_tables }} tables available
+                    </p>
+                    <p style="font-size:0.85rem; color:var(--gray-700);">
+                        <i class="fas fa-lightbulb text-warning me-1"></i>{{ rec.reason }}
+                    </p>
+                    <a href="{{ url_for('main.restaurant_layout', restaurant_id=rec.restaurant.id) }}" class="btn btn-primary-delish btn-sm-delish w-100 mt-2">
+                        <i class="fas fa-map me-1"></i>View Layout & Select Table
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        {% if not recommendations %}
+        <div class="empty-state">
+            <i class="fas fa-search"></i>
+            <h5>No recommendations found</h5>
+            <p>Try adjusting your preferences or browse all restaurants.</p>
+        </div>
+        {% endif %}
+
+        <div class="d-flex justify-content-between">
+            <a href="{{ url_for('main.members', restaurant_id=restaurant.id) }}" class="btn btn-outline-delish">
+                <i class="fas fa-arrow-left me-2"></i>Back
+            </a>
+            <a href="{{ url_for('main.restaurant_layout', restaurant_id=restaurant.id) }}" class="btn btn-primary-delish btn-lg">
+                Skip to {{ restaurant.name }} <i class="fas fa-arrow-right ms-2"></i>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

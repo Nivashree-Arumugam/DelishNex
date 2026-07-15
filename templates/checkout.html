@@ -1,0 +1,138 @@
+<!--
+  checkout.html – Checkout Page
+  Shows booking summary, food summary, and payment method selection.
+-->
+{% extends "layout.html" %}
+{% block title %}Checkout – DelishNex{% endblock %}
+
+{% block content %}
+<div class="checkout-page">
+    <div class="container">
+        <div class="section-header animate-fadeInUp">
+            <h2><i class="fas fa-credit-card me-2 text-primary-delish"></i>Checkout</h2>
+        </div>
+
+        <form method="POST" action="{{ url_for('main.place_order') }}">
+            <input type="hidden" name="payment_method" id="payment-method" value="cash">
+
+            <div class="row">
+                <div class="col-lg-7 animate-fadeInUp delay-1">
+                    <!-- Booking Summary -->
+                    {% if reservation and reservation.get('date') %}
+                    <div class="card card-delish p-3 mb-3">
+                        <h5 class="fw-bold mb-3"><i class="fas fa-calendar-check me-2 text-primary-delish"></i>Reservation Summary</h5>
+                        <div class="row">
+                            {% if restaurant %}
+                            <div class="col-6 mb-2">
+                                <small class="text-muted">Restaurant</small><br>
+                                <strong>{{ restaurant.name }}</strong>
+                            </div>
+                            {% endif %}
+                            {% if table %}
+                            <div class="col-6 mb-2">
+                                <small class="text-muted">Table</small><br>
+                                <strong>Table #{{ table.table_number }} ({{ table.table_type|capitalize }})</strong>
+                            </div>
+                            {% endif %}
+                            <div class="col-6 mb-2">
+                                <small class="text-muted">Date</small><br>
+                                <strong>{{ reservation.get('date', 'N/A') }}</strong>
+                            </div>
+                            <div class="col-6 mb-2">
+                                <small class="text-muted">Time</small><br>
+                                <strong>{{ reservation.get('time', 'N/A') }}</strong>
+                            </div>
+                            <div class="col-6 mb-2">
+                                <small class="text-muted">Guests</small><br>
+                                <strong>{{ reservation.get('members', 'N/A') }}</strong>
+                            </div>
+                            <div class="col-6 mb-2">
+                                <small class="text-muted">Occasion</small><br>
+                                <strong>{{ reservation.get('occasion', 'N/A') }}</strong>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Food Summary -->
+                    <div class="card card-delish p-3 mb-3">
+                        <h5 class="fw-bold mb-3"><i class="fas fa-utensils me-2 text-accent"></i>Food Order Summary</h5>
+                        {% for item in cart_items %}
+                        <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                            <div>
+                                <span class="veg-badge {{ 'veg' if item.is_vegetarian else 'non-veg' }} me-1" style="width:12px; height:12px; display:inline-flex;"></span>
+                                <strong>{{ item.name }}</strong>
+                                <span class="text-muted ms-1">×{{ item.quantity }}</span>
+                            </div>
+                            <span class="fw-bold">₹{{ "%.2f"|format(item.price * item.quantity) }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Payment Method -->
+                    <div class="card card-delish p-3 mb-3">
+                        <h5 class="fw-bold mb-3"><i class="fas fa-wallet me-2 text-primary-delish"></i>Payment Method</h5>
+
+                        <div class="payment-option selected" data-method="cash">
+                            <i class="fas fa-money-bill-wave"></i>
+                            <div class="payment-label">Cash on Delivery</div>
+                        </div>
+                        <div class="payment-option" data-method="upi">
+                            <i class="fas fa-mobile-alt"></i>
+                            <div class="payment-label">UPI Payment</div>
+                        </div>
+                        <div class="payment-option" data-method="card">
+                            <i class="fas fa-credit-card"></i>
+                            <div class="payment-label">Credit / Debit Card</div>
+                        </div>
+                        <div class="payment-option" data-method="wallet">
+                            <i class="fas fa-wallet"></i>
+                            <div class="payment-label">Digital Wallet</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Price Summary -->
+                <div class="col-lg-5 animate-fadeInUp delay-2">
+                    <div class="totals-card" style="position:sticky; top:90px;">
+                        <h6 class="fw-bold mb-3"><i class="fas fa-receipt me-1 text-primary-delish"></i>Price Details</h6>
+
+                        <div class="total-row">
+                            <span>Subtotal ({{ cart_items|length }} items)</span>
+                            <span>₹{{ "%.2f"|format(totals.subtotal) }}</span>
+                        </div>
+                        <div class="total-row">
+                            <span>GST (5%)</span>
+                            <span>₹{{ "%.2f"|format(totals.gst) }}</span>
+                        </div>
+                        <div class="total-row">
+                            <span>Service Charge (2%)</span>
+                            <span>₹{{ "%.2f"|format(totals.service_charge) }}</span>
+                        </div>
+                        {% if coupon %}
+                        <div class="total-row text-success">
+                            <span><i class="fas fa-tag me-1"></i>Coupon ({{ coupon.code }})</span>
+                            <span>-₹{{ "%.2f"|format(totals.discount) }}</span>
+                        </div>
+                        {% endif %}
+                        <div class="total-row grand-total">
+                            <span>Grand Total</span>
+                            <span>₹{{ "%.2f"|format(totals.grand_total) }}</span>
+                        </div>
+
+                        <button type="submit" class="btn btn-accent-delish w-100 mt-3 btn-lg">
+                            <i class="fas fa-check-circle me-2"></i>Place Order
+                        </button>
+
+                        <div class="text-center mt-2">
+                            <small class="text-muted">
+                                <i class="fas fa-shield-alt me-1"></i>100% Secure Payment
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

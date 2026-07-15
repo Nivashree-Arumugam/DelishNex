@@ -1,0 +1,98 @@
+<!--
+  admin/reservation_management.html – Admin Reservation Management
+  View and update reservation statuses (approve/cancel).
+-->
+{% extends "layout.html" %}
+{% block title %}Reservation Management – Admin – DelishNex{% endblock %}
+
+{% block content %}
+<div class="admin-page">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4 animate-fadeInUp">
+            <div>
+                <h2 class="fw-bold font-display"><i class="fas fa-calendar-check me-2 text-primary-delish"></i>Reservation Management</h2>
+                <p class="text-muted mb-0">Approve, cancel, and manage bookings</p>
+            </div>
+            <a href="{{ url_for('main.admin_dashboard') }}" class="btn btn-outline-delish btn-sm-delish">
+                <i class="fas fa-arrow-left me-1"></i>Dashboard
+            </a>
+        </div>
+
+        <!-- Status Filter -->
+        <div class="filter-tabs mb-3 animate-fadeInUp delay-1">
+            <a href="{{ url_for('main.admin_reservations') }}" class="filter-tab {{ 'active' if current_status == 'all' else '' }}">All</a>
+            <a href="{{ url_for('main.admin_reservations', status='pending') }}" class="filter-tab {{ 'active' if current_status == 'pending' else '' }}">Pending</a>
+            <a href="{{ url_for('main.admin_reservations', status='confirmed') }}" class="filter-tab {{ 'active' if current_status == 'confirmed' else '' }}">Confirmed</a>
+            <a href="{{ url_for('main.admin_reservations', status='cancelled') }}" class="filter-tab {{ 'active' if current_status == 'cancelled' else '' }}">Cancelled</a>
+            <a href="{{ url_for('main.admin_reservations', status='completed') }}" class="filter-tab {{ 'active' if current_status == 'completed' else '' }}">Completed</a>
+        </div>
+
+        <!-- Reservations Table -->
+        <div class="card card-delish animate-fadeInUp delay-2">
+            <div class="table-responsive">
+                <table class="table table-delish mb-0">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Customer</th>
+                            <th>Restaurant</th>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Guests</th>
+                            <th>Table</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for res in reservations %}
+                        <tr>
+                            <td>#{{ res.id }}</td>
+                            <td>
+                                <strong>{{ res.user.full_name }}</strong><br>
+                                <small class="text-muted">{{ res.user.email }}</small>
+                            </td>
+                            <td>{{ res.restaurant.name }}</td>
+                            <td>{{ res.reservation_date }}</td>
+                            <td>{{ res.reservation_time }}</td>
+                            <td>{{ res.members }}</td>
+                            <td>#{{ res.table.table_number if res.table else 'N/A' }}</td>
+                            <td><span class="status-badge {{ res.status }}">{{ res.status|capitalize }}</span></td>
+                            <td>
+                                <form method="POST" action="{{ url_for('main.admin_update_reservation', reservation_id=res.id) }}" class="d-inline">
+                                    {% if res.status == 'pending' %}
+                                    <input type="hidden" name="status" value="confirmed">
+                                    <button type="submit" class="btn btn-sm btn-success me-1" title="Approve">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                    {% endif %}
+                                </form>
+                                {% if res.status in ['pending', 'confirmed'] %}
+                                <form method="POST" action="{{ url_for('main.admin_update_reservation', reservation_id=res.id) }}" class="d-inline">
+                                    <input type="hidden" name="status" value="cancelled">
+                                    <button type="submit" class="btn btn-sm btn-danger" title="Cancel">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </form>
+                                {% endif %}
+                                {% if res.status == 'confirmed' %}
+                                <form method="POST" action="{{ url_for('main.admin_update_reservation', reservation_id=res.id) }}" class="d-inline">
+                                    <input type="hidden" name="status" value="completed">
+                                    <button type="submit" class="btn btn-sm btn-outline-primary" title="Mark Complete">
+                                        <i class="fas fa-flag-checkered"></i>
+                                    </button>
+                                </form>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        {% if not reservations %}
+                        <tr><td colspan="9" class="text-center text-muted py-4">No reservations found</td></tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

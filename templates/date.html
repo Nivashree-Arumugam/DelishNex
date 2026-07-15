@@ -1,0 +1,51 @@
+<!--
+  date.html – Reservation Step 3: Select Date
+-->
+{% extends "layout.html" %}
+{% block title %}Select Date – {{ restaurant.name }} – DelishNex{% endblock %}
+
+{% block content %}
+<div class="step-page">
+    <div class="container" style="max-width:700px;">
+        <div class="step-progress">
+            <div class="step-dot completed"></div>
+            <div class="step-dot completed"></div>
+            <div class="step-dot active"></div>
+            <div class="step-dot"></div>
+            <div class="step-dot"></div>
+            <div class="step-dot"></div>
+        </div>
+
+        <div class="step-header animate-fadeInUp">
+            <p class="text-muted mb-1">{{ restaurant.name }}</p>
+            <h2>Pick a Date</h2>
+            <p>When would you like to dine?</p>
+        </div>
+
+        <form method="POST" action="{{ url_for('main.select_time', restaurant_id=restaurant.id) }}" class="step-form">
+            <input type="hidden" name="date" id="date-value" required>
+
+            <div class="row g-2 mb-4" style="max-height:400px; overflow-y:auto;">
+                {% for d in available_dates %}
+                <div class="col-lg-2 col-md-3 col-4 animate-fadeInUp">
+                    <div class="date-card" data-date="{{ d.strftime('%Y-%m-%d') }}">
+                        <div class="weekday">{{ d.strftime('%a') }}</div>
+                        <div class="day">{{ d.day }}</div>
+                        <div class="month">{{ d.strftime('%b') }}</div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="d-flex justify-content-between">
+                <a href="{{ url_for('main.mood', restaurant_id=restaurant.id) }}" class="btn btn-outline-delish">
+                    <i class="fas fa-arrow-left me-2"></i>Back
+                </a>
+                <button type="submit" class="btn btn-primary-delish btn-lg">
+                    Continue <i class="fas fa-arrow-right ms-2"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

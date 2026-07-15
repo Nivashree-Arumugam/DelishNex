@@ -1,0 +1,208 @@
+<!-- 
+  layout.html – Base Template for DelishNex
+  All other templates extend this template.
+  Contains: Navbar, Flash Messages, Footer, Bottom Navigation, and CDN imports.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="DelishNex – AI Powered Smart Restaurant Reservation & Food Ordering System">
+    <meta name="author" content="DelishNex">
+    <title>{% block title %}DelishNex{% endblock %}</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome 6 -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         NAVBAR
+         ═══════════════════════════════════════════════════════════════════ -->
+    {% if current_user.is_authenticated %}
+    <nav class="navbar navbar-expand-lg navbar-delish">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('main.home') }}">
+                <i class="fas fa-leaf"></i> DelishNex
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.home') }}">
+                            <i class="fas fa-home me-1"></i> Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.gallery') }}">
+                            <i class="fas fa-store me-1"></i> Restaurants
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.bookings') }}">
+                            <i class="fas fa-calendar-check me-1"></i> Bookings
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.cart') }}">
+                            <i class="fas fa-shopping-cart me-1"></i> Cart
+                            <span class="badge cart-badge" style="display:none;">0</span>
+                        </a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    {% if current_user.is_admin %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.admin_dashboard') }}">
+                            <i class="fas fa-tachometer-alt me-1"></i> Admin
+                        </a>
+                    </li>
+                    {% endif %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.rewards') }}">
+                            <i class="fas fa-trophy me-1"></i> {{ current_user.reward_points }} pts
+                        </a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user-circle me-1"></i> {{ current_user.full_name.split(' ')[0] }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="{{ url_for('main.profile') }}"><i class="fas fa-user me-2"></i>Profile</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('main.bookings') }}"><i class="fas fa-history me-2"></i>My Bookings</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('main.rewards') }}"><i class="fas fa-star me-2"></i>Rewards</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="{{ url_for('main.logout') }}"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    {% endif %}
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         FLASH MESSAGES
+         ═══════════════════════════════════════════════════════════════════ -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="flash-container">
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show flash-msg" role="alert">
+            {% if category == 'success' %}<i class="fas fa-check-circle me-2"></i>
+            {% elif category == 'danger' %}<i class="fas fa-exclamation-circle me-2"></i>
+            {% elif category == 'warning' %}<i class="fas fa-exclamation-triangle me-2"></i>
+            {% elif category == 'info' %}<i class="fas fa-info-circle me-2"></i>
+            {% endif %}
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         MAIN CONTENT
+         ═══════════════════════════════════════════════════════════════════ -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         FOOTER
+         ═══════════════════════════════════════════════════════════════════ -->
+    {% if current_user.is_authenticated %}
+    <footer class="footer-delish">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 mb-4 mb-lg-0">
+                    <div class="footer-brand"><i class="fas fa-leaf"></i> DelishNex</div>
+                    <p class="mt-2" style="font-size:0.9rem;">AI-powered smart restaurant reservation and food ordering system. Experience dining like never before.</p>
+                    <div class="footer-social mt-3">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-4 mb-4 mb-md-0">
+                    <h5>Explore</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="{{ url_for('main.home') }}">Home</a></li>
+                        <li class="mb-2"><a href="{{ url_for('main.gallery') }}">Restaurants</a></li>
+                        <li class="mb-2"><a href="{{ url_for('main.bookings') }}">Bookings</a></li>
+                        <li class="mb-2"><a href="{{ url_for('main.rewards') }}">Rewards</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-4 mb-4 mb-md-0">
+                    <h5>Account</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="{{ url_for('main.profile') }}">Profile</a></li>
+                        <li class="mb-2"><a href="{{ url_for('main.cart') }}">Cart</a></li>
+                        <li class="mb-2"><a href="{{ url_for('main.bookings') }}">Orders</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-4 col-md-4">
+                    <h5>Contact Us</h5>
+                    <ul class="list-unstyled" style="font-size:0.9rem;">
+                        <li class="mb-2"><i class="fas fa-envelope me-2"></i> support@delishnex.com</li>
+                        <li class="mb-2"><i class="fas fa-phone me-2"></i> +91 98765 43210</li>
+                        <li class="mb-2"><i class="fas fa-map-marker-alt me-2"></i> Bengaluru, India</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p class="mb-0">&copy; 2026 DelishNex. All rights reserved. Built with <i class="fas fa-heart text-danger"></i></p>
+            </div>
+        </div>
+    </footer>
+    {% endif %}
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         BOTTOM NAVIGATION (Mobile)
+         ═══════════════════════════════════════════════════════════════════ -->
+    {% if current_user.is_authenticated %}
+    <div class="bottom-nav">
+        <div class="nav-items">
+            <a href="{{ url_for('main.home') }}" class="nav-item">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </a>
+            <a href="{{ url_for('main.gallery') }}" class="nav-item">
+                <i class="fas fa-store"></i>
+                <span>Restaurants</span>
+            </a>
+            <a href="{{ url_for('main.cart') }}" class="nav-item">
+                <i class="fas fa-shopping-cart"></i>
+                <span>Cart</span>
+                <span class="badge cart-badge" style="display:none;">0</span>
+            </a>
+            <a href="{{ url_for('main.bookings') }}" class="nav-item">
+                <i class="fas fa-calendar-check"></i>
+                <span>Bookings</span>
+            </a>
+            <a href="{{ url_for('main.profile') }}" class="nav-item">
+                <i class="fas fa-user"></i>
+                <span>Profile</span>
+            </a>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

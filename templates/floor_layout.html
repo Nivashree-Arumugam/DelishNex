@@ -1,0 +1,88 @@
+<!--
+  floor_layout.html – Restaurant Floor Plan / Table Selection
+  Shows the visual layout of tables with availability indicators.
+-->
+{% extends "layout.html" %}
+{% block title %}Select Table – {{ restaurant.name }} – DelishNex{% endblock %}
+
+{% block content %}
+<div class="step-page">
+    <div class="container">
+        <div class="step-header animate-fadeInUp">
+            <h2><i class="fas fa-map me-2 text-primary-delish"></i>{{ restaurant.name }} – Floor Plan</h2>
+            <p>Select an available table for {{ members }} guest{{ 's' if members != 1 else '' }}</p>
+        </div>
+
+        <!-- Legend -->
+        <div class="layout-legend mb-3 animate-fadeInUp delay-1">
+            <div class="legend-item">
+                <div class="legend-dot available"></div>
+                <span>Available</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-dot booked"></div>
+                <span>Booked</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-dot selected"></div>
+                <span>Selected</span>
+            </div>
+        </div>
+
+        <!-- Floor Plan Grid -->
+        <div class="floor-plan animate-fadeInUp delay-2">
+            <input type="hidden" id="table-value">
+
+            <div class="floor-grid">
+                {% for table in tables %}
+                <div class="table-item {{ 'booked' if table.is_booked else '' }} {{ 'not-suitable' if not table.is_suitable and not table.is_booked else '' }}"
+                     data-table-id="{{ table.id }}"
+                     {% if table.is_booked %}title="This table is already booked"{% endif %}>
+                    <div class="table-icon">
+                        {% if table.type == 'booth' %}
+                        <i class="fas fa-couch"></i>
+                        {% elif table.type == 'outdoor' %}
+                        <i class="fas fa-umbrella-beach"></i>
+                        {% elif table.type == 'private' %}
+                        <i class="fas fa-door-closed"></i>
+                        {% elif table.type == 'bar' %}
+                        <i class="fas fa-glass-martini-alt"></i>
+                        {% else %}
+                        <i class="fas fa-chair"></i>
+                        {% endif %}
+                    </div>
+                    <div class="table-number">Table #{{ table.number }}</div>
+                    <div class="table-info">
+                        {{ table.type|capitalize }} • {{ table.capacity }} seats
+                    </div>
+                    {% if table.is_booked %}
+                    <small class="text-danger"><i class="fas fa-lock me-1"></i>Booked</small>
+                    {% elif not table.is_suitable %}
+                    <small class="text-warning"><i class="fas fa-exclamation-triangle me-1"></i>Small</small>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        {% if not tables %}
+        <div class="empty-state">
+            <i class="fas fa-chair"></i>
+            <h5>No tables available</h5>
+            <p>This restaurant doesn't have tables configured yet.</p>
+        </div>
+        {% endif %}
+
+        <!-- Actions -->
+        <div class="d-flex justify-content-between mt-4 animate-fadeInUp delay-3">
+            <a href="{{ url_for('main.recommendation', restaurant_id=restaurant.id) }}" class="btn btn-outline-delish">
+                <i class="fas fa-arrow-left me-2"></i>Back
+            </a>
+            <a href="#" id="confirm-table-btn" class="btn btn-primary-delish btn-lg disabled" 
+               onclick="if(document.getElementById('table-value').value) { window.location.href='{{ url_for('main.preview', restaurant_id=restaurant.id, table_id=0) }}'.replace('/0', '/' + document.getElementById('table-value').value); } return false;">
+                Select Table <i class="fas fa-arrow-right ms-2"></i>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

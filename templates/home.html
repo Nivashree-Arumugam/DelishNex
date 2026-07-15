@@ -1,0 +1,244 @@
+<!--
+  home.html – Main Home Page
+  Shows search, today's specials, popular dishes, categories, and offers.
+-->
+{% extends "layout.html" %}
+{% block title %}Home – DelishNex{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+    <!-- ═══ Search Bar ═══ -->
+    <form action="{{ url_for('main.search') }}" method="GET" class="search-bar d-flex">
+        <input type="text" class="form-control" id="search-input" name="q" 
+               placeholder="Search restaurants, dishes, cuisines..." 
+               value="{{ search_query if search_query else '' }}">
+        <button type="submit" class="btn btn-primary-delish ms-2">
+            <i class="fas fa-search"></i>
+        </button>
+    </form>
+
+    <!-- ═══ Search Results (if searching) ═══ -->
+    {% if search_query is defined and search_query %}
+    <div class="section-header">
+        <h2>Search Results for "{{ search_query }}"</h2>
+    </div>
+
+    {% if search_restaurants %}
+    <h5 class="mb-3 text-primary-delish"><i class="fas fa-store me-2"></i>Restaurants</h5>
+    <div class="row g-3 mb-4">
+        {% for restaurant in search_restaurants %}
+        <div class="col-md-4 col-6">
+            <div class="card card-delish restaurant-card">
+                <div class="card-img-wrapper">
+                    {% if restaurant.image_url %}
+                    <img src="{{ url_for('static', filename='images/' ~ restaurant.image_url) }}" class="card-img-top" alt="{{ restaurant.name }}">
+                    {% else %}
+                    <div style="height:160px; background:var(--primary-ghost); display:flex; align-items:center; justify-content:center;">
+                        <i class="fas fa-store-alt" style="font-size:3rem; color:var(--primary-muted);"></i>
+                    </div>
+                    {% endif %}
+                    <span class="cuisine-badge">{{ restaurant.cuisine_type }}</span>
+                </div>
+                <div class="card-body">
+                    <h6 class="card-title">{{ restaurant.name }}</h6>
+                    <div class="rating mb-2">
+                        {% for i in range(restaurant.rating|int) %}
+                        <i class="fas fa-star"></i>
+                        {% endfor %}
+                        <span class="text-muted">{{ restaurant.rating }}</span>
+                    </div>
+                    <a href="{{ url_for('main.occasion', restaurant_id=restaurant.id) }}" class="btn btn-primary-delish btn-sm-delish w-100">
+                        Reserve Now
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if search_menu %}
+    <h5 class="mb-3 text-primary-delish"><i class="fas fa-utensils me-2"></i>Dishes</h5>
+    <div class="row g-3 mb-4">
+        {% for item in search_menu %}
+        <div class="col-md-6">
+            <a href="{{ url_for('main.dish', dish_id=item.id) }}" class="text-decoration-none">
+                <div class="menu-card">
+                    <div class="menu-img">
+                        {% if item.image_url %}
+                        <img src="{{ url_for('static', filename='images/' ~ item.image_url) }}" alt="{{ item.name }}">
+                        {% else %}
+                        <i class="fas fa-utensils"></i>
+                        {% endif %}
+                    </div>
+                    <div class="menu-details">
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <span class="veg-badge {{ 'veg' if item.is_vegetarian else 'non-veg' }}"></span>
+                            <h5 class="mb-0">{{ item.name }}</h5>
+                        </div>
+                        <p>{{ item.description }}</p>
+                        <span class="price-badge">₹{{ item.price }}</span>
+                    </div>
+                </div>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if not search_restaurants and not search_menu %}
+    <div class="empty-state">
+        <i class="fas fa-search"></i>
+        <h5>No results found</h5>
+        <p>Try searching for something else.</p>
+    </div>
+    {% endif %}
+
+    {% else %}
+    <!-- ═══ Normal Home Content ═══ -->
+
+    <!-- Offer Banner -->
+    <div class="offer-banner animate-fadeInUp">
+        <h4><i class="fas fa-fire me-2"></i>Get 20% Off Your First Order!</h4>
+        <p>Use code <strong>WELCOME20</strong> at checkout. Limited time offer.</p>
+    </div>
+
+    <!-- Categories -->
+    <div class="section-header">
+        <h2><i class="fas fa-th-large me-2 text-primary-delish"></i>Categories</h2>
+    </div>
+    <div class="category-scroll mb-4">
+        {% for cat in categories %}
+        <a href="{{ url_for('main.gallery') }}" class="category-pill">
+            <i class="fas {{ cat.icon }}"></i>
+            <span>{{ cat.name }}</span>
+        </a>
+        {% endfor %}
+    </div>
+
+    <!-- Today's Specials -->
+    {% if specials %}
+    <div class="section-header">
+        <h2><i class="fas fa-star me-2 text-accent"></i>Today's Specials</h2>
+    </div>
+    <div class="row g-3 mb-4">
+        {% for item in specials %}
+        <div class="col-lg-3 col-md-4 col-6 animate-fadeInUp delay-{{ loop.index % 5 + 1 }}">
+            <a href="{{ url_for('main.dish', dish_id=item.id) }}" class="text-decoration-none">
+                <div class="card card-delish">
+                    <div class="card-img-wrapper">
+                        {% if item.image_url %}
+                        <img src="{{ url_for('static', filename='images/' ~ item.image_url) }}" class="card-img-top" alt="{{ item.name }}" style="height:160px; object-fit: cover;">
+                        {% else %}
+                        <div style="height:160px; background:var(--primary-ghost); display:flex; align-items:center; justify-content:center;">
+                            <i class="fas fa-utensils" style="font-size:2.5rem; color:var(--primary-muted);"></i>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <span class="veg-badge {{ 'veg' if item.is_vegetarian else 'non-veg' }}"></span>
+                            <h6 class="card-title mb-0">{{ item.name }}</h6>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mt-2">
+                            <span class="price-badge">₹{{ item.price }}</span>
+                            <div class="rating">
+                                <i class="fas fa-star"></i>
+                                <span class="text-muted">{{ item.rating }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Popular Dishes -->
+    {% if popular %}
+    <div class="section-header">
+        <h2><i class="fas fa-fire-alt me-2" style="color:var(--accent);"></i>Popular Dishes</h2>
+    </div>
+    <div class="row g-3 mb-4">
+        {% for item in popular %}
+        <div class="col-md-6">
+            <a href="{{ url_for('main.dish', dish_id=item.id) }}" class="text-decoration-none">
+                <div class="menu-card animate-fadeInUp">
+                    <div class="menu-img">
+                        {% if item.image_url %}
+                        <img src="{{ url_for('static', filename='images/' ~ item.image_url) }}" alt="{{ item.name }}">
+                        {% else %}
+                        <i class="fas fa-utensils"></i>
+                        {% endif %}
+                    </div>
+                    <div class="menu-details">
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <span class="veg-badge {{ 'veg' if item.is_vegetarian else 'non-veg' }}"></span>
+                            <h5 class="mb-0">{{ item.name }}</h5>
+                        </div>
+                        <p>{{ item.description }}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="price-badge">₹{{ item.price }}</span>
+                            <div class="rating">
+                                {% for i in range(item.rating|int) %}
+                                <i class="fas fa-star"></i>
+                                {% endfor %}
+                                <span class="text-muted">{{ item.rating }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Restaurants -->
+    {% if restaurants %}
+    <div class="section-header">
+        <h2><i class="fas fa-store me-2 text-primary-delish"></i>Recommended Restaurants</h2>
+    </div>
+    <div class="row g-3 mb-4">
+        {% for restaurant in restaurants[:6] %}
+        <div class="col-lg-4 col-md-6 animate-fadeInUp">
+            <div class="card card-delish restaurant-card">
+                <div class="card-img-wrapper">
+                    {% if restaurant.image_url %}
+                    <img src="{{ url_for('static', filename='images/' ~ restaurant.image_url) }}" class="card-img-top" alt="{{ restaurant.name }}" style="height:180px; object-fit:cover;">
+                    {% else %}
+                    <div style="height:180px; background:var(--primary-ghost); display:flex; align-items:center; justify-content:center;">
+                        <i class="fas fa-store-alt" style="font-size:3rem; color:var(--primary-muted);"></i>
+                    </div>
+                    {% endif %}
+                    <span class="cuisine-badge">{{ restaurant.cuisine_type }}</span>
+                </div>
+                <div class="card-body">
+                    <h6 class="card-title">{{ restaurant.name }}</h6>
+                    <p class="card-text">{{ restaurant.description[:80] }}...</p>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div class="rating">
+                            {% for i in range(restaurant.rating|int) %}
+                            <i class="fas fa-star"></i>
+                            {% endfor %}
+                            <span class="text-muted">{{ restaurant.rating }}</span>
+                        </div>
+                        <small class="text-muted">
+                            <i class="fas fa-clock me-1"></i>{{ restaurant.opening_time.strftime('%I:%M %p') }}
+                        </small>
+                    </div>
+                    <a href="{{ url_for('main.occasion', restaurant_id=restaurant.id) }}" class="btn btn-primary-delish btn-sm-delish w-100">
+                        <i class="fas fa-calendar-check me-1"></i>Reserve & Order
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,131 @@
+<!--
+  bookings.html – My Bookings Page
+  Shows user's reservation history and order history.
+-->
+{% extends "layout.html" %}
+{% block title %}My Bookings – DelishNex{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="section-header animate-fadeInUp">
+        <h2><i class="fas fa-calendar-check me-2 text-primary-delish"></i>My Bookings</h2>
+    </div>
+
+    <!-- Tabs -->
+    <ul class="nav nav-pills mb-4 animate-fadeInUp delay-1" role="tablist">
+        <li class="nav-item">
+            <button class="nav-link active btn-primary-delish" data-bs-toggle="pill" data-bs-target="#reservations-tab" style="border-radius:var(--radius-pill);">
+                <i class="fas fa-chair me-1"></i>Reservations ({{ reservations|length }})
+            </button>
+        </li>
+        <li class="nav-item ms-2">
+            <button class="nav-link btn-outline-delish" data-bs-toggle="pill" data-bs-target="#orders-tab" style="border-radius:var(--radius-pill);">
+                <i class="fas fa-shopping-bag me-1"></i>Orders ({{ orders|length }})
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content">
+        <!-- Reservations Tab -->
+        <div class="tab-pane fade show active" id="reservations-tab">
+            {% if reservations %}
+            {% for res in reservations %}
+            <div class="booking-card {{ res.status }} animate-fadeInUp">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div>
+                        <h6><i class="fas fa-store me-1"></i>{{ res.restaurant.name }}</h6>
+                        <span class="status-badge {{ res.status }}">{{ res.status|capitalize }}</span>
+                    </div>
+                    <small class="text-muted">#{{ res.id }}</small>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-6 col-md-3 mb-1">
+                        <small class="text-muted"><i class="fas fa-calendar me-1"></i>Date</small><br>
+                        <strong>{{ res.reservation_date }}</strong>
+                    </div>
+                    <div class="col-6 col-md-3 mb-1">
+                        <small class="text-muted"><i class="fas fa-clock me-1"></i>Time</small><br>
+                        <strong>{{ res.reservation_time }}</strong>
+                    </div>
+                    <div class="col-6 col-md-3 mb-1">
+                        <small class="text-muted"><i class="fas fa-users me-1"></i>Guests</small><br>
+                        <strong>{{ res.members }}</strong>
+                    </div>
+                    <div class="col-6 col-md-3 mb-1">
+                        <small class="text-muted"><i class="fas fa-chair me-1"></i>Table</small><br>
+                        <strong>#{{ res.table.table_number if res.table else 'N/A' }}</strong>
+                    </div>
+                </div>
+                {% if res.occasion %}
+                <div class="mt-2">
+                    <small class="text-muted">
+                        <i class="fas fa-birthday-cake me-1"></i>{{ res.occasion }}
+                        {% if res.dining_mood %} • <i class="fas fa-heart me-1"></i>{{ res.dining_mood }}{% endif %}
+                    </small>
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+            {% else %}
+            <div class="empty-state">
+                <i class="fas fa-calendar-times"></i>
+                <h5>No reservations yet</h5>
+                <p>Book a table at your favourite restaurant!</p>
+                <a href="{{ url_for('main.gallery') }}" class="btn btn-primary-delish mt-2">
+                    <i class="fas fa-store me-1"></i>Browse Restaurants
+                </a>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Orders Tab -->
+        <div class="tab-pane fade" id="orders-tab">
+            {% if orders %}
+            {% for order in orders %}
+            <div class="booking-card {{ order.status }} animate-fadeInUp">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div>
+                        <h6><i class="fas fa-shopping-bag me-1"></i>Order #{{ order.id }}</h6>
+                        <span class="status-badge {{ order.status }}">{{ order.status|capitalize }}</span>
+                    </div>
+                    <div class="text-end">
+                        <div class="fw-bold text-primary-delish">₹{{ order.grand_total }}</div>
+                        <small class="text-muted">{{ order.created_at.strftime('%d %b %Y, %I:%M %p') }}</small>
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-6 mb-1">
+                        <small class="text-muted"><i class="fas fa-store me-1"></i>Restaurant</small><br>
+                        <strong>{{ order.restaurant.name }}</strong>
+                    </div>
+                    <div class="col-6 mb-1">
+                        <small class="text-muted"><i class="fas fa-receipt me-1"></i>Items</small><br>
+                        <strong>{{ order.items.count() }} items</strong>
+                    </div>
+                </div>
+                {% if order.coupon_code %}
+                <div class="mt-1">
+                    <span class="badge bg-success"><i class="fas fa-tag me-1"></i>{{ order.coupon_code }}</span>
+                </div>
+                {% endif %}
+                <div class="mt-2">
+                    <a href="{{ url_for('main.success', order_id=order.id) }}" class="btn btn-outline-delish btn-sm-delish">
+                        <i class="fas fa-eye me-1"></i>View Details
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+            {% else %}
+            <div class="empty-state">
+                <i class="fas fa-shopping-cart"></i>
+                <h5>No orders yet</h5>
+                <p>Order delicious food from our restaurants!</p>
+                <a href="{{ url_for('main.gallery') }}" class="btn btn-primary-delish mt-2">
+                    <i class="fas fa-utensils me-1"></i>Order Now
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

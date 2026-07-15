@@ -1,0 +1,176 @@
+<!--
+  admin/dashboard.html – Admin Dashboard
+  Shows key statistics, recent orders, and recent reservations.
+-->
+{% extends "layout.html" %}
+{% block title %}Admin Dashboard – DelishNex{% endblock %}
+
+{% block content %}
+<div class="admin-page">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4 animate-fadeInUp">
+            <div>
+                <h2 class="fw-bold font-display"><i class="fas fa-tachometer-alt me-2 text-primary-delish"></i>Admin Dashboard</h2>
+                <p class="text-muted mb-0">Welcome back, {{ current_user.full_name }}</p>
+            </div>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="row g-3 mb-4">
+            <div class="col-lg-3 col-md-6 animate-fadeInUp delay-1">
+                <div class="stat-card green">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="stat-number">{{ total_users }}</div>
+                            <div class="stat-text">Total Users</div>
+                        </div>
+                        <div class="stat-icon"><i class="fas fa-users"></i></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 animate-fadeInUp delay-2">
+                <div class="stat-card blue">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="stat-number">{{ total_orders }}</div>
+                            <div class="stat-text">Total Orders</div>
+                        </div>
+                        <div class="stat-icon"><i class="fas fa-shopping-bag"></i></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 animate-fadeInUp delay-3">
+                <div class="stat-card orange">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="stat-number">{{ total_reservations }}</div>
+                            <div class="stat-text">Reservations</div>
+                        </div>
+                        <div class="stat-icon"><i class="fas fa-calendar-check"></i></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 animate-fadeInUp delay-4">
+                <div class="stat-card purple">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="stat-number">₹{{ "%.0f"|format(total_revenue) }}</div>
+                            <div class="stat-text">Total Revenue</div>
+                        </div>
+                        <div class="stat-icon"><i class="fas fa-rupee-sign"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Stats Row -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-3 col-6 animate-fadeInUp">
+                <div class="card card-delish p-3 text-center">
+                    <div class="fw-bold text-warning" style="font-size:1.5rem;">{{ pending_orders }}</div>
+                    <small class="text-muted">Pending Orders</small>
+                </div>
+            </div>
+            <div class="col-md-3 col-6 animate-fadeInUp">
+                <div class="card card-delish p-3 text-center">
+                    <div class="fw-bold text-info" style="font-size:1.5rem;">{{ pending_reservations }}</div>
+                    <small class="text-muted">Pending Reservations</small>
+                </div>
+            </div>
+            <div class="col-md-3 col-6 animate-fadeInUp">
+                <div class="card card-delish p-3 text-center">
+                    <div class="fw-bold text-primary-delish" style="font-size:1.5rem;">{{ total_dishes }}</div>
+                    <small class="text-muted">Menu Items</small>
+                </div>
+            </div>
+            <div class="col-md-3 col-6 animate-fadeInUp">
+                <div class="card card-delish p-3 text-center">
+                    <div class="fw-bold text-success" style="font-size:1.5rem;">{{ total_restaurants }}</div>
+                    <small class="text-muted">Restaurants</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Navigation Cards -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-4 animate-fadeInUp delay-1">
+                <a href="{{ url_for('main.admin_menu') }}" class="card card-delish p-4 text-center text-decoration-none d-block">
+                    <i class="fas fa-utensils text-primary-delish mb-3" style="font-size:2.5rem;"></i>
+                    <h5 class="fw-bold">Manage Menu</h5>
+                    <p class="text-muted mb-0">Add, edit, and delete menu items</p>
+                </a>
+            </div>
+            <div class="col-md-4 animate-fadeInUp delay-2">
+                <a href="{{ url_for('main.admin_reservations') }}" class="card card-delish p-4 text-center text-decoration-none d-block">
+                    <i class="fas fa-calendar-check text-primary-delish mb-3" style="font-size:2.5rem;"></i>
+                    <h5 class="fw-bold">Manage Reservations</h5>
+                    <p class="text-muted mb-0">Approve, cancel, and manage bookings</p>
+                </a>
+            </div>
+            <div class="col-md-4 animate-fadeInUp delay-3">
+                <a href="{{ url_for('main.admin_orders') }}" class="card card-delish p-4 text-center text-decoration-none d-block">
+                    <i class="fas fa-shopping-bag text-primary-delish mb-3" style="font-size:2.5rem;"></i>
+                    <h5 class="fw-bold">Manage Orders</h5>
+                    <p class="text-muted mb-0">Track and update order statuses</p>
+                </a>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- Recent Orders -->
+            <div class="col-lg-6 animate-fadeInUp delay-2">
+                <div class="card card-delish p-3">
+                    <h5 class="fw-bold mb-3"><i class="fas fa-clock me-2 text-accent"></i>Recent Orders</h5>
+                    <div class="table-responsive">
+                        <table class="table table-delish mb-0">
+                            <thead>
+                                <tr><th>ID</th><th>User</th><th>Amount</th><th>Status</th></tr>
+                            </thead>
+                            <tbody>
+                                {% for order in recent_orders %}
+                                <tr>
+                                    <td>#{{ order.id }}</td>
+                                    <td>{{ order.user.full_name }}</td>
+                                    <td>₹{{ order.grand_total }}</td>
+                                    <td><span class="status-badge {{ order.status }}">{{ order.status|capitalize }}</span></td>
+                                </tr>
+                                {% endfor %}
+                                {% if not recent_orders %}
+                                <tr><td colspan="4" class="text-center text-muted">No orders yet</td></tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Reservations -->
+            <div class="col-lg-6 animate-fadeInUp delay-3">
+                <div class="card card-delish p-3">
+                    <h5 class="fw-bold mb-3"><i class="fas fa-clock me-2 text-primary-delish"></i>Recent Reservations</h5>
+                    <div class="table-responsive">
+                        <table class="table table-delish mb-0">
+                            <thead>
+                                <tr><th>ID</th><th>User</th><th>Date</th><th>Status</th></tr>
+                            </thead>
+                            <tbody>
+                                {% for res in recent_reservations %}
+                                <tr>
+                                    <td>#{{ res.id }}</td>
+                                    <td>{{ res.user.full_name }}</td>
+                                    <td>{{ res.reservation_date }}</td>
+                                    <td><span class="status-badge {{ res.status }}">{{ res.status|capitalize }}</span></td>
+                                </tr>
+                                {% endfor %}
+                                {% if not recent_reservations %}
+                                <tr><td colspan="4" class="text-center text-muted">No reservations yet</td></tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

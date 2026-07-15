@@ -1,0 +1,51 @@
+<!--
+  mood.html – Reservation Step 2: Choose Dining Mood
+-->
+{% extends "layout.html" %}
+{% block title %}Choose Mood – {{ restaurant.name }} – DelishNex{% endblock %}
+
+{% block content %}
+<div class="step-page">
+    <div class="container" style="max-width:700px;">
+        <div class="step-progress">
+            <div class="step-dot completed"></div>
+            <div class="step-dot active"></div>
+            <div class="step-dot"></div>
+            <div class="step-dot"></div>
+            <div class="step-dot"></div>
+            <div class="step-dot"></div>
+        </div>
+
+        <div class="step-header animate-fadeInUp">
+            <p class="text-muted mb-1">{{ restaurant.name }}</p>
+            <h2>What's Your Mood?</h2>
+            <p>Choose the ambience you're looking for</p>
+        </div>
+
+        <form method="POST" action="{{ url_for('main.select_date', restaurant_id=restaurant.id) }}" class="step-form">
+            <input type="hidden" name="mood" id="option-value" required>
+
+            <div class="row g-3 mb-4">
+                {% for m in moods %}
+                <div class="col-md-4 col-6 animate-fadeInUp delay-{{ loop.index % 5 + 1 }}">
+                    <div class="option-card" data-value="{{ m.name }}">
+                        <i class="fas {{ m.icon }}" style="color:{{ m.color }};"></i>
+                        <h5>{{ m.name }}</h5>
+                        <p>{{ m.desc }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="d-flex justify-content-between">
+                <a href="{{ url_for('main.occasion', restaurant_id=restaurant.id) }}" class="btn btn-outline-delish">
+                    <i class="fas fa-arrow-left me-2"></i>Back
+                </a>
+                <button type="submit" class="btn btn-primary-delish btn-lg">
+                    Continue <i class="fas fa-arrow-right ms-2"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

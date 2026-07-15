@@ -1,0 +1,238 @@
+<!--
+  admin/menu_management.html – Admin Menu Management
+  CRUD operations for menu items with add/edit/delete modals.
+-->
+{% extends "layout.html" %}
+{% block title %}Menu Management – Admin – DelishNex{% endblock %}
+
+{% block content %}
+<div class="admin-page">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4 animate-fadeInUp">
+            <div>
+                <h2 class="fw-bold font-display"><i class="fas fa-utensils me-2 text-primary-delish"></i>Menu Management</h2>
+                <p class="text-muted mb-0">Add, edit, and delete menu items</p>
+            </div>
+            <div>
+                <a href="{{ url_for('main.admin_dashboard') }}" class="btn btn-outline-delish btn-sm-delish me-2">
+                    <i class="fas fa-arrow-left me-1"></i>Dashboard
+                </a>
+                <button class="btn btn-primary-delish" data-bs-toggle="modal" data-bs-target="#addDishModal">
+                    <i class="fas fa-plus me-1"></i>Add Dish
+                </button>
+            </div>
+        </div>
+
+        <!-- Restaurant Filter -->
+        <div class="mb-3 animate-fadeInUp delay-1">
+            <div class="filter-tabs">
+                <a href="{{ url_for('main.admin_menu') }}" class="filter-tab {{ 'active' if not selected_restaurant else '' }}">All Restaurants</a>
+                {% for rest in restaurants %}
+                <a href="{{ url_for('main.admin_menu', restaurant_id=rest.id) }}" 
+                   class="filter-tab {{ 'active' if selected_restaurant == rest.id else '' }}">{{ rest.name }}</a>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Menu Items Table -->
+        <div class="card card-delish animate-fadeInUp delay-2">
+            <div class="table-responsive">
+                <table class="table table-delish mb-0">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Restaurant</th>
+                            <th>Category</th>
+                            <th>Price</th>
+                            <th>Rating</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in items %}
+                        <tr>
+                            <td>{{ item.id }}</td>
+                            <td>
+                                <span class="veg-badge {{ 'veg' if item.is_vegetarian else 'non-veg' }} me-1" style="width:12px; height:12px;"></span>
+                                {{ item.name }}
+                                {% if item.is_special %}<span class="badge bg-warning text-dark" style="font-size:0.6rem;">★</span>{% endif %}
+                            </td>
+                            <td>{{ item.restaurant.name }}</td>
+                            <td><span class="text-capitalize">{{ item.category|replace('_', ' ') }}</span></td>
+                            <td>₹{{ item.price }}</td>
+                            <td><i class="fas fa-star text-warning"></i> {{ item.rating }}</td>
+                            <td>
+                                {% if item.is_available %}
+                                <span class="status-badge confirmed">Available</span>
+                                {% else %}
+                                <span class="status-badge cancelled">Unavailable</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary me-1" 
+                                        data-bs-toggle="modal" data-bs-target="#editDishModal"
+                                        data-id="{{ item.id }}"
+                                        data-name="{{ item.name }}"
+                                        data-description="{{ item.description }}"
+                                        data-price="{{ item.price }}"
+                                        data-category="{{ item.category }}"
+                                        data-rating="{{ item.rating }}"
+                                        data-veg="{{ '1' if item.is_vegetarian else '0' }}"
+                                        data-available="{{ '1' if item.is_available else '0' }}"
+                                        data-special="{{ '1' if item.is_special else '0' }}">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <form method="POST" action="{{ url_for('main.admin_delete_dish', dish_id=item.id) }}" 
+                                      class="delete-form" style="display:inline;">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        {% if not items %}
+                        <tr><td colspan="8" class="text-center text-muted py-4">No menu items found</td></tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ Add Dish Modal ═══ -->
+<div class="modal fade" id="addDishModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content" style="border-radius:var(--radius-lg);">
+            <div class="modal-header" style="background:var(--gradient-primary); color:#fff; border-radius:var(--radius-lg) var(--radius-lg) 0 0;">
+                <h5 class="modal-title"><i class="fas fa-plus me-2"></i>Add New Dish</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('main.admin_add_dish') }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Restaurant</label>
+                        <select name="restaurant_id" class="form-select" required>
+                            {% for rest in restaurants %}
+                            <option value="{{ rest.id }}">{{ rest.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Dish Name</label>
+                        <input type="text" name="name" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Description</label>
+                        <textarea name="description" class="form-control" rows="2"></textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <label class="form-label fw-bold">Price (₹)</label>
+                            <input type="number" name="price" class="form-control" step="0.01" required>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <label class="form-label fw-bold">Category</label>
+                            <select name="category" class="form-select" required>
+                                <option value="starter">Starter</option>
+                                <option value="main_course">Main Course</option>
+                                <option value="dessert">Dessert</option>
+                                <option value="beverage">Beverage</option>
+                                <option value="combo">Combo</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <label class="form-label fw-bold">Rating</label>
+                            <input type="number" name="rating" class="form-control" step="0.1" min="0" max="5" value="4.0">
+                        </div>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" name="is_vegetarian" id="add-veg">
+                        <label class="form-check-label" for="add-veg">Vegetarian</label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" name="is_available" id="add-avail" checked>
+                        <label class="form-check-label" for="add-avail">Available</label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" name="is_special" id="add-special">
+                        <label class="form-check-label" for="add-special">Today's Special</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-delish" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary-delish"><i class="fas fa-plus me-1"></i>Add Dish</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ Edit Dish Modal ═══ -->
+<div class="modal fade" id="editDishModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content" style="border-radius:var(--radius-lg);">
+            <div class="modal-header" style="background:var(--gradient-primary); color:#fff; border-radius:var(--radius-lg) var(--radius-lg) 0 0;">
+                <h5 class="modal-title"><i class="fas fa-edit me-2"></i>Edit Dish</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" id="edit-dish-form" action="">
+                <input type="hidden" id="edit-dish-id" name="dish_id">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Dish Name</label>
+                        <input type="text" name="name" id="edit-name" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Description</label>
+                        <textarea name="description" id="edit-description" class="form-control" rows="2"></textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <label class="form-label fw-bold">Price (₹)</label>
+                            <input type="number" name="price" id="edit-price" class="form-control" step="0.01" required>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <label class="form-label fw-bold">Category</label>
+                            <select name="category" id="edit-category" class="form-select" required>
+                                <option value="starter">Starter</option>
+                                <option value="main_course">Main Course</option>
+                                <option value="dessert">Dessert</option>
+                                <option value="beverage">Beverage</option>
+                                <option value="combo">Combo</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <label class="form-label fw-bold">Rating</label>
+                            <input type="number" name="rating" id="edit-rating" class="form-control" step="0.1" min="0" max="5">
+                        </div>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" name="is_vegetarian" id="edit-is-vegetarian">
+                        <label class="form-check-label" for="edit-is-vegetarian">Vegetarian</label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" name="is_available" id="edit-is-available">
+                        <label class="form-check-label" for="edit-is-available">Available</label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" name="is_special" id="edit-is-special">
+                        <label class="form-check-label" for="edit-is-special">Today's Special</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-delish" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary-delish"><i class="fas fa-save me-1"></i>Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

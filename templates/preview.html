@@ -1,0 +1,84 @@
+<!--
+  preview.html – Table Preview before confirming
+-->
+{% extends "layout.html" %}
+{% block title %}Table Preview – {{ restaurant.name }} – DelishNex{% endblock %}
+
+{% block content %}
+<div class="step-page">
+    <div class="container" style="max-width:700px;">
+        <div class="step-header animate-fadeInUp">
+            <h2>Table Preview</h2>
+            <p>Review your selected table</p>
+        </div>
+
+        <div class="card card-delish p-4 mb-4 animate-fadeInUp delay-1">
+            <div class="text-center mb-3">
+                <div style="width:120px; height:120px; border-radius:50%; background:var(--primary-ghost); display:flex; align-items:center; justify-content:center; margin:0 auto;">
+                    {% if table.table_type == 'booth' %}
+                    <i class="fas fa-couch" style="font-size:3rem; color:var(--primary);"></i>
+                    {% elif table.table_type == 'outdoor' %}
+                    <i class="fas fa-umbrella-beach" style="font-size:3rem; color:var(--primary);"></i>
+                    {% elif table.table_type == 'private' %}
+                    <i class="fas fa-door-closed" style="font-size:3rem; color:var(--primary);"></i>
+                    {% elif table.table_type == 'bar' %}
+                    <i class="fas fa-glass-martini-alt" style="font-size:3rem; color:var(--primary);"></i>
+                    {% else %}
+                    <i class="fas fa-chair" style="font-size:3rem; color:var(--primary);"></i>
+                    {% endif %}
+                </div>
+            </div>
+
+            <h4 class="text-center fw-bold mb-3">Table #{{ table.table_number }}</h4>
+
+            <div class="row text-center mb-3">
+                <div class="col-4">
+                    <div class="text-muted" style="font-size:0.8rem;">Type</div>
+                    <div class="fw-bold text-capitalize">{{ table.table_type }}</div>
+                </div>
+                <div class="col-4">
+                    <div class="text-muted" style="font-size:0.8rem;">Capacity</div>
+                    <div class="fw-bold">{{ table.capacity }} Guests</div>
+                </div>
+                <div class="col-4">
+                    <div class="text-muted" style="font-size:0.8rem;">Restaurant</div>
+                    <div class="fw-bold">{{ restaurant.name }}</div>
+                </div>
+            </div>
+
+            {% if reservation %}
+            <div class="bg-primary-ghost p-3 rounded-delish">
+                <h6 class="fw-bold text-primary-delish mb-2"><i class="fas fa-info-circle me-1"></i>Reservation Details</h6>
+                <div class="row">
+                    <div class="col-6 mb-2">
+                        <small class="text-muted">Date</small><br>
+                        <strong>{{ reservation.get('date', 'N/A') }}</strong>
+                    </div>
+                    <div class="col-6 mb-2">
+                        <small class="text-muted">Time</small><br>
+                        <strong>{{ reservation.get('time', 'N/A') }}</strong>
+                    </div>
+                    <div class="col-6 mb-2">
+                        <small class="text-muted">Occasion</small><br>
+                        <strong>{{ reservation.get('occasion', 'N/A') }}</strong>
+                    </div>
+                    <div class="col-6 mb-2">
+                        <small class="text-muted">Guests</small><br>
+                        <strong>{{ reservation.get('members', 'N/A') }}</strong>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="d-flex justify-content-between">
+            <a href="{{ url_for('main.restaurant_layout', restaurant_id=restaurant.id) }}" class="btn btn-outline-delish">
+                <i class="fas fa-arrow-left me-2"></i>Change Table
+            </a>
+            <a href="{{ url_for('main.planner', restaurant_id=restaurant.id) }}" class="btn btn-primary-delish btn-lg">
+                Confirm Table <i class="fas fa-check ms-2"></i>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
