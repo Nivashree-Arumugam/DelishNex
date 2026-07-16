@@ -10,70 +10,80 @@ from models import db, User
 import os
 
 # ---------------- Flask-Login ----------------
+
 login_manager = LoginManager()
 login_manager.login_view = "main.login"
 login_manager.login_message = "Please log in to access this page."
 login_manager.login_message_category = "warning"
 
-
 @login_manager.user_loader
 def load_user(user_id):
-    """Reload user object from session."""
-    return db.session.get(User, int(user_id))
-
+"""Reload user object from session."""
+return db.session.get(User, int(user_id))
 
 # ---------------- Application Factory ----------------
+
 def create_app():
-    app = Flask(__name__)
-    app.config.from_object(Config)
+app = Flask(**name**)
+app.config.from_object(Config)
 
-    # Initialize extensions
-    db.init_app(app)
-    login_manager.init_app(app)
+```
+# Initialize extensions
+db.init_app(app)
+login_manager.init_app(app)
 
-    # Register blueprint
-    from routes import main
-    app.register_blueprint(main)
+# Register blueprint
+from routes import main
+app.register_blueprint(main)
 
-    # Create upload folder if missing
-    os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
+# Create upload folder if missing
+os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
+
+# Create database tables automatically (SQLite)
+with app.app_context():
+    db.create_all()
 
     # Create/Update admin account
-    with app.app_context():
-        admin = User.query.filter_by(email="admin@delishnex.com").first()
+    admin = User.query.filter_by(email="admin@delishnex.com").first()
 
-        if admin:
-            if not admin.check_password("admin123"):
-                admin.set_password("admin123")
-                db.session.commit()
-        else:
-            admin = User(
-                full_name="Admin User",
-                email="admin@delishnex.com",
-                phone="9999999999",
-                role="admin",
-                reward_points=0,
-            )
+    if admin:
+        if not admin.check_password("admin123"):
             admin.set_password("admin123")
-            db.session.add(admin)
             db.session.commit()
+    else:
+        admin = User(
+            full_name="Admin User",
+            email="admin@delishnex.com",
+            phone="9999999999",
+            role="admin",
+            reward_points=0,
+        )
+        admin.set_password("admin123")
+        db.session.add(admin)
+        db.session.commit()
 
-    return app
-
+return app
+```
 
 # ======================================================
-# IMPORTANT FOR VERCEL
+
+# IMPORTANT FOR RENDER / VERCEL
+
 # This creates the Flask app at the top level.
+
 # ======================================================
+
 app = create_app()
 
+# ======================================================
+
+# Run locally
 
 # ======================================================
-# Run locally
-# ======================================================
-if __name__ == "__main__":
-    app.run(
-        host="0.0.0.0",
-        port=5000,
-        debug=True
-    )
+
+if **name** == "**main**":
+app.run(
+host="0.0.0.0",
+port=5000,
+debug=True
+)
